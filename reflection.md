@@ -1,0 +1,13 @@
+# Ethical Considerations & Analytical Reflection
+
+### 1. Inaccurate Dissemination Accountability & System Safeguards
+If the chat assistant delivers an erroneous deadline causing a student to lose their registration slot, the institution ultimately bears organizational responsibility for deploying an unverified automated tool. To prevent this occurrence prior to an official operational release, a mandatory structural guardrail should be established. This includes formatting automated legal disclaimers directly below each generation stating that answers are for informal reference only, alongside an embedded hyperlink routing directly to the immutable, official school calendar page.
+
+### 2. Algorithmic Dataset Bias Remediation
+Because the training dataset consisting of 50 phrases was entirely generated internally by a single author, it will inevitably fail to reflect the idiomatic structures, spelling mistakes, shorthand contractions, and organic Taglish slang variations used by natural student applicants. To resolve this syntax limitation, the data corpus should be expanded by logging anonymized text strings from historical user inquiries and parsing the operational deployment traffic. This data can then be integrated into the retraining pipeline to expose the classifier to realistic syntactic variations.
+
+### 3. Compliance Architecture under Data Privacy Act of 2012
+In strict compliance with Republic Act No. 10173 (Data Privacy Act of 2012), the school must show a visible, explicit privacy disclosure banner to users before they type in the chat box. This notice must inform them that data is monitored for support purposes, while strictly instructing them never to provide personal identification items like grades, contact details, or passwords. The backend architecture must completely avoid recording raw structural values mapped to private user profiles. Any information saved in database files must be anonymized or put through regex scrubbing scripts to eliminate personally identifiable information (PII).
+
+### 4. Technological Extension Analysis: Augmented/Virtual Reality (AR/VR)
+One impactful mechanism to extend this helpdesk utility is implementing an interactive AR campus tour framework. When prospective registrants chat with the assistant asking where physical submission windows are located, the assistant can trigger a spatial AR viewport map overlaid on their mobile phone screen to guide them through the corridors. However, this large-scale upgrade may not be worth the development expense because it requires heavy hardware overhead and high bandwidth. Most users simply want quick text answers about deadlines or fees, making a streamlined mobile-responsive web layout far more efficient and cost-effective.
