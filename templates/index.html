@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayanihan College - Helpdesk</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; display: flex; justify: center; align-items: center; height: 100vh; }
+        .phone-container { width: 375px; height: 667px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; overflow: hidden; border-radius: 12px; position: relative; }
+        .header { background: #007bff; color: white; padding: 15px; font-weight: bold; text-align: center; font-size: 1.1rem; }
+        .chat-area { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #f8f9fa; }
+        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 0.9rem; line-height: 1.4; position: relative; }
+        .msg-user { background: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-bot { background: #e9ecef; color: #212529; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .meta-info { font-size: 0.75rem; color: #6c757d; margin-top: 4px; display: block; }
+        .feedback-actions { margin-top: 6px; display: flex; gap: 8px; }
+        .rate-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 2px 4px; filter: grayscale(1); }
+        .rate-btn:hover { filter: grayscale(0); }
+        .input-bar { display: flex; border-top: 1px solid #dee2e6; padding: 8px; background: white; }
+        .input-bar input { flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 20px; outline: none; font-size: 0.9rem; }
+        .input-bar button { background: #007bff; color: white; border: none; padding: 0 16px; margin-left: 6px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        #loading { display: none; text-align: center; color: #6c757d; font-size: 0.85rem; padding: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="header">Bayanihan Assistant</div>
+    <div class="chat-area" id="chatWindow">
+        <div class="msg-bubble msg-bot">
+            Mabuhay! Welcome to Bayanihan College Enrollment Helpdesk. How can I help you today?
+        </div>
+    </div>
+    <div id="loading">Typing response...</div>
+    <div class="input-bar">
+        <input type="text" id="userInput" placeholder="Type an enrollment question..." maxlength="500">
+        <button id="sendBtn">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatWindow = document.getElementById('chatWindow');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const loading = document.getElementById('loading');
+
+    function appendMessage(text, isUser, meta = null) {
+        const bubble = document.createElement('div');
+        bubble.classList.add('msg-bubble', isUser ? 'msg-user' : 'msg-bot');
+        bubble.innerText = text;
+
+        if (meta) {
+            const footer = document.createElement('div');
+            footer.classList.add('meta-info');
+            footer.innerText = `[Source Reference IDs: ${meta.ids.join(', ')}] Intent: ${meta.category}`;
+            bubble.appendChild(footer);
+
+            const feedback = document.createElement('div');
+            feedback.classList.add('feedback-actions');
+            feedback.innerHTML = `
+                <button class="rate-btn" onclick="rateReply('up', this)">👍</button>
+                <button class="rate-btn" onclick="rateReply('down', this)">👎</button>
+            `;
+            bubble.appendChild(feedback);
+        }
+
+        chatWindow.appendChild(bubble);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function sendRequest() {
+        const query = userInput.value.trim();
+        if (!query) return;
+
+        appendMessage(query, true);
+        userInput.value = '';
+        loading.style.display = 'block';
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: query })
+            });
+            const data = await res.json();
+            loading.style.display = 'none';
+
+            if (res.status === 400) {
+                appendMessage(`Error: ${data.error}`, false);
+            } else {
+                appendMessage(data.answer, false, { ids: data.ids, category: data.category });
+            }
+        } catch (err) {
+            loading.style.display = 'none';
+            appendMessage("Unable to process request at this time.", false);
+        }
+    }
+
+    async function rateReply(type, element) {
+        await fetch('/api/rating', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: type })
+        });
+        element.parentElement.innerHTML = `<span class="meta-info">Thank you for rating!</span>`;
+    }
+
+    sendBtn.addEventListener('click', sendRequest);
+    userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendRequest(); });
+</script>
+</body>
+</html>
