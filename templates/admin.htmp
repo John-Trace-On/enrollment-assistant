@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Metrics Panel</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 30px; background-color: #fcfcfd; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; max-width: 600px; }
+        h1 { color: #007bff; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 8px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .score { font-weight: bold; color: #28a745; }
+    </style>
+</head>
+<body>
+    <h1>System Analytics Dashboard</h1>
+    
+    <div class="card">
+        <h3>User Satisfaction Score</h3>
+        <p>Positive Feedback Ratio: <span class="score" id="pct">-</span></p>
+    </div>
+
+    <div class="card">
+        <h3>Volume Metrics Per Intent Category</h3>
+        <ul id="categories-list">
+            <li>Loading metrics data...</li>
+        </ul>
+    </div>
+
+    <script>
+        async function fetchMetrics() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                
+                document.getElementById('pct').innerText = data.thumbs_up_percentage + '%';
+                
+                const list = document.getElementById('categories-list');
+                list.innerHTML = '';
+                
+                for (const [cat, count] of Object.entries(data.questions_per_category)) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${cat}</span> <strong>${count} requests</strong>`;
+                    list.appendChild(li);
+                }
+            } catch(e) {
+                console.error("Failed loading statistics visualization", e);
+            }
+        }
+        fetchMetrics();
+        setInterval(fetchMetrics, 5000); // refresh metrics data rows every 5 seconds
+    </script>
+</body>
+</html>
