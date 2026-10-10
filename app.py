@@ -81,7 +81,7 @@ def chat():
     predicted_cat = "requirements"
     if clf_model and tfidf_vectorizer:
         feats = tfidf_vectorizer.transform([message])
-        predicted_cat = clf_model.predict(feats)[0]
+        predicted_cat = str(clf_model.predict(feats)[0])
         
     # Bump metrics counter
     if predicted_cat in analytics_data["categories"]:
@@ -151,6 +151,7 @@ def get_stats():
         "raw_counts": analytics_data["ratings"]
     })
 
+# Render dynamic port binding configuration (Part G Deployment requirement)
 if __name__ == "__main__":
-    # Host configuration setup for target standard operations
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
