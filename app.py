@@ -9,7 +9,6 @@ from google.genai import types
 app = Flask(__name__)
 
 # Initialize Gemini Client (using google-genai package as specified)
-# The API key is automatically fetched from the GEMINI_API_KEY environment variable
 try:
     client = genai.Client()
 except Exception as e:
@@ -54,7 +53,7 @@ def keyword_bm25_retrieval(user_query, documents, top_n=3):
         matches = len(query_words.intersection(doc_words))
         scored_docs.append((matches, doc))
         
-    # Sort descending by word match count
+    # Sort descending strictly by match count integer to avoid dictionary structural comparison errors
     scored_docs.sort(key=lambda x: x[0], reverse=True)
     return [item[1] for item in scored_docs[:top_n]]
 
@@ -81,7 +80,10 @@ def chat():
     predicted_cat = "requirements"
     if clf_model and tfidf_vectorizer:
         feats = tfidf_vectorizer.transform([message])
-        predicted_cat = str(clf_model.predict(feats)[0])
+        # Force conversion from array elements to native string key mapping safely
+        preds = clf_model.predict(feats)
+        if len(preds) > 0:
+            predicted_cat = str(preds[0])
         
     # Bump metrics counter
     if predicted_cat in analytics_data["categories"]:
