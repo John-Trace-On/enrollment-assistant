@@ -54,10 +54,10 @@ def keyword_bm25_retrieval(user_query, documents, top_n=3):
         scored_docs.append((matches, doc))
         
     # Sort descending strictly by match count integer (index 0 of the tuple)
-    scored_docs.sort(key=lambda x: x[0], reverse=True)
+    scored_docs.sort(key=lambda x: x, reverse=True)
     
     # Extract only the clean document dictionaries from the sorted tuples
-    return [item[1] for item in scored_docs[:top_n]]
+    return [item for item in scored_docs[:top_n]]
 
 @app.route("/")
 def home():
@@ -84,7 +84,7 @@ def chat():
         feats = tfidf_vectorizer.transform([message])
         preds = clf_model.predict(feats)
         if len(preds) > 0:
-            predicted_cat = str(preds[0])
+            predicted_cat = str(preds)
         
     # Bump metrics counter
     if predicted_cat in analytics_data["categories"]:
@@ -112,7 +112,7 @@ def chat():
     if client:
         try:
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-1.5-flash',  # Fixed to the standard stable model version
                 contents=user_prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction,
